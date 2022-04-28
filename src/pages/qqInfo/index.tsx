@@ -24,10 +24,12 @@ function QQInfo() {
    * @returns
    */
   const getUserInfo = async (e: any) => {
+    setErr("");
     /**
      * 合法的QQ号 为长度为5-12的数字
      */
     if (e.target.value.length < 5) {
+      setErr("请输入合法的QQ号，长度在5到12区间");
       return;
     }
     setLoading(true);

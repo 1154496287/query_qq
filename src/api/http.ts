@@ -61,7 +61,6 @@ async function throttleInterceptors(
     }
   } else {
     try {
-      console.log(2);
       return await callBack();
     } catch (e) {
       /**
@@ -70,32 +69,26 @@ async function throttleInterceptors(
     }
   }
 }
+
 /**
- * 请求类 这里可以封装请求baseURL
- * 可以根据ENV 处理多环境请求配置
- * 可以分层处理接口白名单 例如不重要接口请求报错 不影响主体业务流程
- *
+ * GET 请求函数
+ * @param path 请求路径
+ * @param params  请求参数
+ * @param configs 请求配置文件 这里测试题比较简单不做其他配置
+ * @returns response
  */
-class Send {
-  /**
-   * GET 请求函数
-   * @param path 请求路径
-   * @param params  请求参数
-   * @param configs 请求配置文件 这里测试题比较简单不做其他配置
-   * @returns response
-   */
-  async get(path: string, params?: any, configs?: Configs) {
-    return throttleInterceptors(
-      path,
-      async () => {
-        return await AxiosInstance.get(path, {
-          params,
-        });
-      },
-      configs
-    );
-  }
+async function get(path: string, params?: any, configs?: Configs) {
+  return throttleInterceptors(
+    path,
+    async () => {
+      return await AxiosInstance.get(path, {
+        params,
+      });
+    },
+    configs
+  );
 }
+
 /**
  * 请求拦截器
  */
@@ -144,24 +137,4 @@ AxiosInstance.interceptors.response.use(
   }
 );
 
-/**
- * 单例设计
- * @returns 返回配置的请求体
- */
-const request = () => {
-  const _instance = window.WORKER_AXIOS_INSTANCE;
-  // 有配置参数且或者没有实例 去实例
-  try {
-    if (_instance) {
-      return _instance;
-    } else {
-      // 有配置参数且或者没有实例 去实例
-      window.WORKER_AXIOS_INSTANCE = new Send();
-      return window.WORKER_AXIOS_INSTANCE;
-    }
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-export default request();
+export { get };
