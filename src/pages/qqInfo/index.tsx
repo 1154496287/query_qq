@@ -1,7 +1,11 @@
-import Axios from "axios";
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import "./index.css";
-import { debounce, set } from "lodash";
+import Loading from "./components/Loading";
+import { debounce } from "lodash";
+import { getQQInfo } from "../../api";
+/**
+ * 简单测试demo 这里就不配置别名和less了, 看着有点难受~~
+ */
 type Info = {
   name: string;
   qq: string;
@@ -11,49 +15,58 @@ type Info = {
  * 查询qq信息头像
  */
 function QQInfo() {
-  const [info, setInfo] = useState<Info>({
-    name: "MOOD",
-    qq: "1154496287",
-    qlogo: "https://q2.qlogo.cn/headimg_dl?spec=100&dst_uin=1154496287",
-  });
-
+  const [info, setInfo] = useState<Info | null>();
+  const [loading, setLoading] = useState<boolean>(false);
   const [err, setErr] = useState<string>("");
-  const rg = /[1-9][0-9]{4,10}$/;
-
+  /**
+   * 查询qq信息
+   * @param e
+   * @returns
+   */
   const getUserInfo = async (e: any) => {
+    /**
+     * 合法的QQ号 为长度为5-12的数字
+     */
     if (e.target.value.length < 5) {
       return;
     }
-    console.log(e.target.value);
-    const res = await Axios.get("https://api.uomg.com/api/qq.info", {
-      params: {
-        qq: e.target.value,
-      },
-    });
-    if (res.status === 200 && res.data.code === 1) {
-      setInfo(res.data);
-    }
-    if (res.status === 200 && res.data.code === 1) {
-      setErr(res.data);
+    setLoading(true);
+    try {
+      const res = await getQQInfo(e.target.value);
+      setLoading(false);
+      if (res.code === 1) {
+        setErr("");
+        setInfo(res);
+      }
+      /**
+       * 异常抛出msg信息
+       */
+      if (res.code === 201702) {
+        setErr(res.msg);
+      }
+    } catch (e) {
+      setLoading(false);
     }
   };
 
   return (
     <div className="qq-info">
-      {/* <button onClick={getUserInfo}>click</button> */}
       <h3>QQ号查询</h3>
       <div className="input-info">
-        qq
+        qq:
         <input
           type="number"
           placeholder="请输入合法的qq号"
-          onKeyUp={debounce(getUserInfo, 200)}
-          // onChange={setInputQQ}
+          onKeyUp={debounce(getUserInfo, 400)}
+          onInput={(e: any) => {
+            if (e.target.value.length > 12)
+              e.target.value = e.target.value.slice(0, 12);
+          }}
         />
       </div>
-      {err.length ? (
-        <div>{err}</div>
-      ) : (
+      {loading && <Loading />}
+      {err.length ? <div>{err}</div> : null}
+      {info && !err.length && !loading && (
         <div className="avatar">
           <img src={info.qlogo} alt="" />
           <ul>
