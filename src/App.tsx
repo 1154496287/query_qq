@@ -1,11 +1,7 @@
 import QQInfo from "./pages/qqInfo";
 
 function App() {
-  return (
-    <div>
-      <QQInfo />
-    </div>
-  );
+  return <QQInfo />;
 }
 
 export default App;
