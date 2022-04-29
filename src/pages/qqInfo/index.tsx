@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import "./index.css";
 import Loading from "./components/Loading";
 import { debounce } from "lodash";
@@ -23,7 +23,7 @@ function QQInfo() {
    * @param e
    * @returns
    */
-  const getUserInfo = async (e: any) => {
+  const getUserInfo = async (e) => {
     setErr("");
     /**
      * 合法的QQ号 为长度为5-12的数字
@@ -60,7 +60,7 @@ function QQInfo() {
           type="number"
           placeholder="请输入合法的qq号"
           onKeyUp={debounce(getUserInfo, 400)}
-          onInput={(e: any) => {
+          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
             if (e.target.value.length > 12)
               e.target.value = e.target.value.slice(0, 12);
           }}
